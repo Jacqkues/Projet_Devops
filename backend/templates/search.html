@@ -4,148 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Musiques Similaires</title>
-    <style>
-      /* Styles de base */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: Arial, sans-serif;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: linear-gradient(135deg, #6a0dad, #b19cd9);
-        flex-direction: column;
-      }
-
-      .container {
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 90%; /* Adaptation à la largeur de l'écran */
-      }
-
-      .title {
-        font-size: 50px;
-        font-weight: bold;
-        color: white;
-        font-family: "Junegull", sans-serif;
-        margin-bottom: 40px;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(
-          3,
-          30%
-        ); /* 3 colonnes avec chaque élément prenant 30% de la largeur */
-        gap: 5%; /* Même espacement horizontal et vertical (5%) */
-        width: 70%; /* Largeur totale de la grille */
-        justify-items: center; /* Centrer les éléments dans les colonnes */
-      }
-
-      /* Style des rectangles (music-box) */
-      .music-box,
-      button:only-of-type[type="submit"] {
-        background-color: white;
-        width: 100%; /* Chaque rectangle occupe toute la largeur de la colonne */
-        aspect-ratio: 16 / 9; /* Proportion rectangulaire en 16:9 */
-        border-radius: 15px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 18px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: transform 0.3s ease; /* Effet d'agrandissement au hover */
-      }
-
-      /* Effet hover */
-      .music-box:hover {
-        transform: scale(1.05); /* Agrandissement à 105% */
-      }
-      .music-link {
-        text-decoration: none; /* Supprime la décoration du texte dans le lien */
-        width: 100%; /* Le lien prend toute la largeur du rectangle */
-        height: 100%; /* Le lien prend toute la hauteur du rectangle */
-        display: inline-block; /* Assure que le lien se comporte comme un bloc */
-        color: inherit; /* Hérite la couleur du texte, ici il sera blanc par défaut */
-      }
-      .back-button {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background-color: transparent;
-        color: black;
-        text-decoration: none;
-        font-size: 22px;
-        font-weight: bold;
-        padding: 10px 15px;
-        border-radius: 8px;
-        transition: transform 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-      }
-
-      .back-button::after {
-        content: "";
-        display: inline-block;
-        margin-left: 10px;
-        border: solid black;
-        border-width: 0 4px 4px 0;
-        padding: 5px;
-        transform: rotate(-45deg);
-        transition: transform 0.3s ease;
-      }
-
-      .back-button:hover {
-        transform: scale(1.1);
-      }
-
-      .back-button:hover::after {
-        transform: rotate(-45deg) scale(1.2); /* Agrandissement de la flèche au survol */
-      }
-    </style>
   </head>
   <body>
-    <a href="/" class="back-button"> Retour </a>
-
-    <div class="container">
+    <div class="container" id="track-info">
       <h1 class="title">Musiques similaires</h1>
 
-      <div class="grid">
-        {% for track in tracks %}
-        <div class="music-box">
-          <form
-            class="music-link"
-            method="POST"
-            action="/api/v1/get_track_infos"
-          >
-            <input type="hidden" name="track_id" value="{{ track.id }}" />
-            <input
-              type="hidden"
-              name="artist_name"
-              value="{{ track.artists[0].name }}"
-            />
-            <button
-              type="submit"
-              style="
-                background: none;
-                border: none;
-                cursor: pointer;
-                color: inherit;
-              "
-            >
-              {{ track.name }} - {{ track.artists[0].name }}
-            </button>
+      {% for track in tracks %}
+      <div class="music-box">
+          <form class="music-link" method="POST" hx-post="/api/v1/get_track_infos" hx-target="#track-info">
+              <input type="hidden" name="track_id" value="{{ track.id }}" />
+              <input type="hidden" name="artist_name" value="{{ track.artists[0].name }}" />
+              <button type="submit" style="background: none; border: none; cursor: pointer; color: inherit;">
+                  {{ track.name }} - {{ track.artists[0].name }}
+              </button>
           </form>
-        </div>
+      </div>
         {% endfor %}
+
       </div>
     </div>
   </body>

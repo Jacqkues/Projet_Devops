@@ -64,20 +64,6 @@ def get_artist_tracks(artist_id):
         print(f"Erreur {response.status_code}: {response.content}")
         return None
     
-def get_artist_genres(artist_id):
-    token = get_token()
-    url = f"https://api.spotify.com/v1/artists/{artist_id}"
-    headers = get_auth_header(token)
-    
-    response = get(url, headers=headers)
-    
-    if response.status_code == 200:
-        response_json = json.loads(response.content)
-        return response_json['genres']
-    else:
-        print(f"Erreur {response.status_code}: {response.content}")
-        return None
-
 def search_by_track(track, market="FR"):
     token = get_token()
     url = "https://api.spotify.com/v1/search"
@@ -124,18 +110,6 @@ def search_by_track_and_artist(track, artist, market="FR"):
     else:
         print(f"Erreur {response.status_code}: {response.content}")
 
-
-def test(id):
-    token = get_token()
-    tracks = search_by_track_and_artist(token, track='0 to 100', artist='Sidhu Moose Wala', market="US")
-
-    if tracks:
-        track = tracks[0]
-        track_id = track['id']
-
-        url = f"https://api.spotify.com/v1/audio-features/{track_id}"
-        headers = get_auth_header(token)
-        response = get(url, headers=headers)
 def get_audio_features(track_id):
     token = get_token()
     url = f"https://api.spotify.com/v1/audio-features/{track_id}"
@@ -143,6 +117,39 @@ def get_audio_features(track_id):
     response = get(url, headers=headers)
 
     if response.status_code == 200:
-        response_json = json.loads(response.content)
+        audio_features_json = json.loads(response.content)
 
-        print(response_json)
+        numerical_features = {
+            'danceability': audio_features_json['danceability'],
+            'energy': audio_features_json['energy'],
+            'key': audio_features_json['key'],
+            'loudness': audio_features_json['loudness'],
+            'mode': audio_features_json['mode'],
+            'speechiness': audio_features_json['speechiness'],
+            'acousticness': audio_features_json['acousticness'],
+            'instrumentalness': audio_features_json['instrumentalness'],
+            'liveness': audio_features_json['liveness'],
+            'valence': audio_features_json['valence'],
+        }
+
+        return numerical_features
+    
+    else:
+        return {"error": response.status_code, "message": response.text}
+    
+def get_infos_track(track_id):
+    token = get_token()
+    url = f"https://api.spotify.com/v1/tracks/{track_id}"
+    headers = get_auth_header(token)
+    response = get(url, headers=headers)
+
+    if response.status_code == 200:
+        track_infos_json = json.loads(response.content)
+        
+        infos_track = {
+            'id': track_id,
+            'trackName': track_infos_json['name'],
+            'artistName': track_infos_json['artists'][0]['name'],
+        }
+
+        return infos_track
