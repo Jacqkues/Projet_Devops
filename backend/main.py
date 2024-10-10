@@ -27,7 +27,7 @@ templates = Jinja2Templates(directory="templates")
 mongo_connection_string = "mongodb://admin:admin@mongodb:27017/"
 client = MongoClient(mongo_connection_string)
 
-db = client['devOpsBDD']  # Remplacez par le nom de votre base de données
+db = client['DevOpsDB']  # Remplacez par le nom de votre base de données
 collection = db['SpotifySongs']
 collection.create_index([("trackName", "text")])
 
@@ -184,17 +184,18 @@ async def predict(request: Request, query: Optional[str] = Form(None)):
         playlist = playlist[1:10]  
         return templates.TemplateResponse("out.html", {"request": request, "playlist": playlist , "input_song":input_song , "image": img_uri})
     else:
-        return templates.TemplateResponse("err.html" , {"request": request, "message": f"{query} : introuvable"})
-   
+        tracks = search_by_track(query)
+        return templates.TemplateResponse("search.html", {"request": request, "tracks": tracks})
     
 @router.post("/get_track_infos")
 async def predict(request: Request, track_id: str = Form(...)):
-    infos_track = get_audio_features(track_id)
+    audio_features = get_audio_features(track_id)
+    input_song = get_infos_track(track_id)
+    img_uri = fetc_img(track_id)
+    features = list(audio_features.keys())
+    playlist = generate_playlist(all_songs, audio_features, 9, features)
     
-    features = list(infos_track.keys())
-    
-    playlist = generate_playlist(all_songs, infos_track, 9, features)
-    return {"message": playlist}
+    return templates.TemplateResponse("out.html", {"request": request, "playlist": playlist , "input_song":input_song , "image": img_uri})
 
 app.include_router(router)
 

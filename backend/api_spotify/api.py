@@ -64,20 +64,6 @@ def get_artist_tracks(artist_id):
         print(f"Erreur {response.status_code}: {response.content}")
         return None
     
-def get_artist_genres(artist_id):
-    token = get_token()
-    url = f"https://api.spotify.com/v1/artists/{artist_id}"
-    headers = get_auth_header(token)
-    
-    response = get(url, headers=headers)
-    
-    if response.status_code == 200:
-        response_json = json.loads(response.content)
-        return response_json['genres']
-    else:
-        print(f"Erreur {response.status_code}: {response.content}")
-        return None
-
 def search_by_track(track, market="FR"):
     token = get_token()
     url = "https://api.spotify.com/v1/search"
