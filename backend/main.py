@@ -29,11 +29,14 @@ client = MongoClient(mongo_connection_string)
 
 db = client['devOpsBDD']  # Remplacez par le nom de votre base de données
 collection = db['SpotifySongs']
-
+collection.create_index([("trackName", "text")])
 
 
 all_songs = list(collection.find())
 all_songs, scaler , features = clean_spotify_data_mongo(all_songs)
+
+
+
 
 
 # df0=pd.read_csv('./data/spotify_data.csv')
@@ -63,16 +66,43 @@ def fetc_img(id):
         return response_json['thumbnail_url']
     
 
-def search_in_db(track_name,artist_name):
+def search_in_db(id):
     query = {}
-    if track_name:
-       query["trackName"] = {"$regex": track_name, "$options": "i"}
-
-    if artist_name:
-        query["artistName"] = artist_name
-    
+    query["id"] = id
     res = collection.find_one(query)
     return res
+
+def search_multiple(track_name):
+
+    pipeline = [
+    {
+        "$match": {"$text": {"$search": track_name}}  # Requête textuelle
+    },
+    {
+        "$addFields": {
+            "score": {"$meta": "textScore"}  # Ajoute le score de pertinence
+        }
+    },
+    {
+        "$group": {
+            "_id": "$id",  # Regroupe par id pour éviter les doublons
+            "document": {"$first": "$$ROOT"},  # Garde le premier document par 'id'
+            "score": {"$first": "$score"}  # Garde le score de pertinence
+        }
+    },
+    {
+        "$replaceRoot": {"newRoot": "$document"}  # Remet le document complet à la racine
+    },
+    {
+        "$sort": {"score": {"$meta": "textScore"}}  # Trie par score de pertinence
+    },
+    {
+        "$limit": 4  # Limite à 10 résultats
+    }
+]
+    results = collection.aggregate(pipeline)
+    return results
+
 
 
 client = MongoClient("mongodb://admin:admin@mongodb:27017/")
@@ -90,13 +120,58 @@ async def random(request: Request,):
 
     return templates.TemplateResponse("out.html", {"request": request , "playlist": playlist , "input_song":input_song , "image": img_uri})
 
+@router.post("/search", response_class=HTMLResponse)
+async def search(request: Request, query: Optional[str] = Form(None)):
+    song = parse_request(query)
 
+    output = list(search_multiple(song[0]))
+
+    if len(output) > 0:
+        return templates.TemplateResponse("search_tmp.html", {"request": request, "tracks":output})
+    else:
+        tracks = search_by_track(query)
+        out = []
+        for track in tracks:
+            objet = {}
+            name = tracks[0].get("name")
+            objet["trackName"] = name
+
+            artist = track.get("artists")[0].get('name')
+            objet["artistName"] = artist
+            objet["id"] = track.get('id')
+            out.append(objet)
+            
+        return templates.TemplateResponse("search_tmp.html", {"request": request, "tracks":out})
+
+    
+
+@router.get("/getsong/")
+def read_items(request: Request,id: str, artist:str, track:str):
+
+    input_song = search_in_db(id)
+    if input_song is None:
+        infos_track = get_audio_features(id)
+        input_song = pd.DataFrame([infos_track])
+        input_song["trackName"] = track
+        input_song["artistName"] = artist
+    else: 
+        input_song = pd.DataFrame([input_song])
+    input_song[features] = scaler.transform(input_song[features])
+
+    input_song = input_song.iloc[0]
+
+    img_uri = fetc_img(input_song.id)
+
+    playlist = generate_playlist(all_songs, input_song, 10)
+    playlist = playlist[1:10]  
+    return templates.TemplateResponse("out.html", {"request": request, "playlist": playlist , "input_song":input_song , "image": img_uri , "artist":artist})
 
 # Endpoint pour générer la playlist
 @router.post("/predict", response_class=HTMLResponse)
 async def predict(request: Request, query: Optional[str] = Form(None)):
     q = parse_request(query)
     item = search_in_db(q[0],q[1])
+    output = list(search_multiple(q[0]))
     item = pd.DataFrame([item])
     item[features] = scaler.transform(item[features])
     #filtered_songs = all_songs[all_songs['trackName'].notna() & all_songs['trackName'].str.contains(query, case=False)]

@@ -82,7 +82,7 @@ def search_by_track(track, market="FR"):
     token = get_token()
     url = "https://api.spotify.com/v1/search"
     headers = get_auth_header(token)
-    query = f"?q=track:{track}&type=track&limit=9&market={market}"
+    query = f"?q={track}&type=track&limit=1&market={market}"
     
     query_url = url + query
     response = get(query_url, headers=headers)
@@ -110,7 +110,7 @@ def search_by_track_and_artist(track, artist, market="FR"):
     token = get_token()
     url = "https://api.spotify.com/v1/search"
     headers = get_auth_header(token)
-    query = f"?q=track:{track} artist:{artist}&type=track&limit=5&market={market}"
+    query = f"?q=track:{track} artist:{artist}&type=track&limit=4&market={market}"
     
     query_url = url + query
     response = get(query_url, headers=headers)
@@ -136,6 +136,7 @@ def test(id):
         url = f"https://api.spotify.com/v1/audio-features/{track_id}"
         headers = get_auth_header(token)
         response = get(url, headers=headers)
+
 def get_audio_features(track_id):
     token = get_token()
     url = f"https://api.spotify.com/v1/audio-features/{track_id}"
@@ -145,4 +146,4 @@ def get_audio_features(track_id):
     if response.status_code == 200:
         response_json = json.loads(response.content)
 
-        print(response_json)
+        return response_json

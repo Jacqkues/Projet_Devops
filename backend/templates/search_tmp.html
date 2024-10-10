@@ -1,0 +1,27 @@
+<div class="h-[600px] no-scrollbar overflow-y-scroll flex justify-center w-full items-center ">
+    {% set colors = ['bg-[#ec008c]', 'bg-[#006b50]', 'bg-[#a000ec]', 'bg-[#282266]', 'bg-[#4f8d00]', 'bg-[#c15900]',
+    'bg-[#009900]', 'bg-[#2e0e74]' ,'bg-[#4247f1]' , 'bg-[#f40026]'] %}
+    <div class="flex flex-col gap-4">
+        {% for track in tracks %}
+        <div hx-get="/api/v1/getsong?id={{track.id}}&artist={{track.artistName}}&track={{track.trackName}}" hx-target="#htmx-response" hx-trigger="click"
+            
+            class="cursor-pointer w-[450px] {{ colors | random }} rounded-lg text-white p-6">
+            <div class="flex flex-col gap-1">
+                <span class="font-extrabold	">{{ track.trackName }}</span>
+                <span class="font-light">{{ track.artistName }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+     .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+     /* Hide scrollbar for IE, Edge and Firefox */
+      .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+    }
+</style>

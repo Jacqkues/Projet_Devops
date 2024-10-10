@@ -1,11 +1,12 @@
-<a  href="https://open.spotify.com/track/{{input_song.id}}" class="bg-[#1f1f1f] w-[30%] rounded-lg">
+<a href="https://open.spotify.com/track/{{input_song.id}}" class="bg-[#1f1f1f] w-[30%] rounded-lg">
     <div class="py-12 px-8 flex flex-col">
 
         <img class="rounded-lg" src="{{image}}">
-        <span class="mt-8 font-black text-2xl">{{input_song.trackName.upper()}}</span>
+        <span class="mt-8 font-black text-2xl">{{ input_song.trackName|upper }}</span>
         <div>
             <span class="font-extralight">by</span>
             <span>{{input_song.artistName}}</span>
+
         </div>
 
     </div>
@@ -22,6 +23,7 @@
         <div class="flex flex-col gap-1">
             <span class="font-extrabold	">{{ song.song_name }}</span>
             <span class="font-light">{{ song.artiste_name }}</span>
+            <span class="text-sm font-light"> Similarity : {{song.song_distance | round(2)}}</span>
         </div>
 
     </a>
