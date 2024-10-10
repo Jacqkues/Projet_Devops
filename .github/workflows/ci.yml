@@ -3,10 +3,10 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # Déclencher les actions sur les push dans la branche main
+      - action_git  # Déclencher les actions sur les push dans la branche main
   pull_request:
     branches:
-      - main
+      - action_git
 
 jobs:
   build:
