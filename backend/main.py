@@ -27,7 +27,7 @@ templates = Jinja2Templates(directory="templates")
 mongo_connection_string = "mongodb://admin:admin@mongodb:27017/"
 client = MongoClient(mongo_connection_string)
 
-db = client['DevOpsDB']  # Remplacez par le nom de votre base de données
+db = client['devOpsBDD']  # Remplacez par le nom de votre base de données
 collection = db['SpotifySongs']
 collection.create_index([("trackName", "text")])
 
