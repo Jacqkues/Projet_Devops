@@ -17,12 +17,12 @@ jobs:
       run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
     - uses: actions/checkout@v4
     - name: Build the Frontend Docker image
-      run:  docker build -t jacques4849/devops_frontend:latest -f ./Dockerfile .
+      run:  docker build -t jacques4879/devops_frontend:latest -f ./Dockerfile .
     - name: push frontend
-      run: docker push jacques4849/devops_frontend:latest
+      run: docker push jacques4879/devops_frontend:latest
     - name: Build Backend DockerFile
       run: docker build -t jacques4879/devops_backend:latest -f backend/Dockerfile ./backend/
     - name: push backend
-      run: docker push jacques4849/devops_frontend:latest
+      run: docker push jacques4879/devops_frontend:latest
 
       
