@@ -23,6 +23,6 @@ jobs:
     - name: Build Backend DockerFile
       run: docker build -t jacques4879/devops_backend:latest -f backend/Dockerfile ./backend/
     - name: push backend
-      run: docker push jacques4879/devops_frontend:latest
+      run: docker push jacques4879/devops_backend:latest
 
       
