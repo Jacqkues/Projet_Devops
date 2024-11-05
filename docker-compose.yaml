@@ -21,7 +21,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./static:/etc/nginx/html/
+      - ./static:/usr/share/nginx/html
     networks:
       - fastapi_network
     depends_on:
